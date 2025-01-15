@@ -1,70 +1,92 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const mongoose = require("mongoose");
 
-const orderSchema = new Schema({
+// Define the shipping address schema
+// const shippingAddressSchema = new mongoose.Schema({
+//   street: {
+//     type: String,
+//     required: true,
+//   },
+//   city: {
+//     type: String,
+//     required: true,
+//   },
+//   state: {
+//     type: String,
+//     required: true,
+//   },
+//   zipCode: {
+//     type: String,
+//     required: true,
+//   },
+//   phone: {
+//     type: String,
+//     required: true,
+//     match: [/^\d{10}$/, "Please provide a valid 10-digit phone number"],
+//   },
+// });
 
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
-    // required: true,
-  },
-  orderItems: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'orderItems',
-  }],
-  orderDate: {
-    type: Date,
-    required: true,
-  },
-  deliveryDate: {
-    type: Date,
-  },
-  shippingAddress: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'addresses',
-  },
-  paymentDetails: {
-    
-    paymentMethod: {
+// Define the order schema
+const orderSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    orderItems: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "OrderItem",
+        required: true,
+      },
+    ],
+    totalPrice: {
+      type: Number,
+      required: true,
+    },
+    totalDiscountedPrice: {
+      type: Number,
+      required: true,
+    },
+    discounte: {
+      type: Number,
+      required: true, // Ensure this is populated when creating an order
+    },
+    totalItem: {
+      type: Number,
+      required: true,
+    },
+    shippingAddress: {
+      street: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      zipCode: { type: String, required: true },
+      phone: {
+        type: String,
+        required: true,
+        match: [/^\d{10}$/, "Please provide a valid 10-digit phone number"],
+      },
+    },
+    orderDate: {
+      type: Date,
+      default: Date.now,
+    },
+    orderStatus: {
       type: String,
+      enum: ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"],
+      default: "PENDING",
     },
-    transactionId: {
-      type: String,
+    paymentDetails: {
+      status: {
+        type: String,
+        enum: ["PENDING", "PAID", "FAILED"],
+        default: "PENDING",
+      },
     },
-    paymentId:{
-      type:String,
-    },
-    paymentStatus:{
-      type:String
-    }
-    
   },
-  totalPrice: {
-    type: Number,
-    required: true,
-  },
-  totalDiscountedPrice: {
-    type: Number,
-    required: true,
-  },
-  discounte: {
-    type: Number,
-    required: true,
-  },
-  orderStatus: {
-    type: String,
-    required: true,
-  },
-  totalItem: {
-    type: Number,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true }
+);
 
-const Order = mongoose.model('orders', orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 
 module.exports = Order;

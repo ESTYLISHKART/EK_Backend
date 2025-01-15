@@ -1,5 +1,5 @@
 // productModel.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
   title: {
@@ -27,42 +27,52 @@ const productSchema = new mongoose.Schema({
   brand: {
     type: String,
   },
-  color: {
-    type: String,
-  },
-  sizes: [{
-    name:{type:String},
-    quantity:{type:Number}
-  }], 
+  colors: [
+    {
+      name: { type: String, required: true }, // Color name
+      imageUrl: { type: String, required: true }, // Associated image URL
+    },
+  ],
+  sizes: [
+    {
+      name: { type: String, required: true },
+      quantity: { type: Number, required: true },
+    },
+  ],
   imageUrl: {
     type: String,
   },
+  imageALL: [
+    {
+      type: String,
+    },
+  ],
   ratings: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'ratings',
+      ref: "ratings",
     },
-  ], 
+  ],
   reviews: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'reviews',
+      ref: "reviews",
     },
-  ], 
+  ],
   numRatings: {
     type: Number,
     default: 0,
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'categories',
-  }, 
+    ref: "categories",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-const Product = mongoose.model('products', productSchema);
+const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;

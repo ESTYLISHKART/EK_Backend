@@ -1,38 +1,78 @@
 const orderService = require("../services/order.service.js");
+const mongoose = require("mongoose");
+
+function validateAddress(address) {
+  const { street, city, state, zipCode, phone } = address;
+
+  if (!street || !city || !state || !zipCode || !phone) {
+    throw new Error(
+      "All address fields (street, city, state, zipCode, phone) are required"
+    );
+  }
+
+  if (!/^\d{10}$/.test(phone)) {
+    throw new Error("Phone number must be a valid 10-digit number");
+  }
+  return true;
+}
 
 const createOrder = async (req, res) => {
-  const user = req.user;
-  // console.log("userr ",user,req.body)
   try {
-    let createdOrder = await orderService.createOrder(user, req.body);
+    if (!req.body.address) {
+      return res.status(400).json({ message: "Shipping address is required" });
+    }
 
-    console.log("order ", createdOrder);
+    validateAddress(req.body.address);
 
-    return res.status(201).send(createdOrder);
+    const createdOrder = await orderService.createOrder(
+      req.user,
+      req.body.address
+    );
+    return res.status(201).json(createdOrder);
   } catch (error) {
-    return res.status(500).send(error.message);
+    console.error("Error creating order:", error.message);
+    return res.status(error.message.includes("required") ? 400 : 500).json({
+      message: error.message,
+    });
   }
 };
 
 const findOrderById = async (req, res) => {
-  const user = req.user;
-  // console.log("userr ",user,req.body)
+  const { id } = req.params;
   try {
-    let order = await orderService.findOrderById(req.params.id);
-
-    return res.status(201).send(order);
+    const order = await orderService.findOrderById(id);
+    if (!order) {
+      // If no order is found, return a 404 error
+      return res.status(404).json({ message: "Order not found" });
+    }
+    return res.status(200).json(order);
   } catch (error) {
-    return res.status(500).send(error.message);
+    console.error("Error fetching order:", error.message);
+    return res.status(500).json({ message: "Failed to fetch order" });
   }
 };
 
 const orderHistory = async (req, res) => {
   const user = req.user;
+  const { status } = req.query; // Get the status from query params if provided
+
   try {
-    let order = await orderService.usersOrderHistory(user._id);
-    return res.status(200).send(order);
+    let query = { user: user._id }; // Always filter by user
+
+    if (status) {
+      query.orderStatus = status; // Add the status filter if provided
+    }
+
+    let orders = await orderService.usersOrderHistory(query); // Await the promise from the service
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found" });
+    }
+
+    return res.status(200).json(orders); // Return the orders as JSON
   } catch (error) {
-    return res.status(500).send(error.message);
+    console.error("Error fetching user order history:", error.message);
+    return res.status(500).json({ message: error.message });
   }
 };
 

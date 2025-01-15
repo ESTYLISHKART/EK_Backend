@@ -1,61 +1,30 @@
 const mongoose = require("mongoose");
 
+const userSchema = new mongoose.Schema(
+  {
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
+    password: { type: String, required: true, minlength: 6 },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Please use a valid email address"],
+    },
+    role: {
+      type: String,
+      enum: ["CUSTOMER", "ADMIN", "SELLER"],
+      default: "CUSTOMER",
+    },
+    mobile: {
+      type: String,
+      match: [/^\d{10}$/, "Please provide a valid 10-digit phone number"],
+    },
+    addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
+  },
+  { timestamps: true }
+);
 
-const userSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: String,
-    required:true,
-    default:"CUSTOMER"
-  },
-  mobile: {
-    type: String,
-  },
-  addresses: [
-    {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "addresses",
-    },
-  ], 
-  paymentInformation: [
-    {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "payment_information",
-    },
-  ],
-  ratings: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ratings",
-    },
-  ], 
-  reviews: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "reviews",
-    },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
-});
-
-const User = mongoose.model("users", userSchema);
-
+const User = mongoose.model("User", userSchema); // Use "User" as the model name
 module.exports = User;

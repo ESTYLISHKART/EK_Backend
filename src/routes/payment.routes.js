@@ -1,10 +1,17 @@
-const express=require("express");
+const express = require("express");
 const authenticate = require("../middleware/authenticat.js");
-const router=express.Router();
-const paymentController=require("../controllers/payment.controller.js");
+const router = express.Router();
+const paymentController = require("../controllers/payment.controller.js");
 
-router.post("/:id",authenticate,paymentController.createPaymentLink);
-router.get("/",authenticate,paymentController.updatePaymentInformation);
+router.post(
+  "/:orderId",
+  authenticate,
+  paymentController.createPaymentLinkController
+);
+router.post(
+  "/updatePaymentInformation",
+  authenticate,
+  paymentController.updatePaymentInformation
+);
 
-
-module.exports=router;
+module.exports = router;
